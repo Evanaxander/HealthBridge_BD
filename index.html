@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthBridge BD - Medical Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            height: 85vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(to bottom, #1a6fc4, #0d4d8e);
+            color: white;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo i {
+            font-size: 32px;
+            margin-right: 12px;
+            color: #fff;
+        }
+
+        .logo h1 {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: #ffd700;
+        }
+
+        .search-section {
+            margin-top: 20px;
+        }
+
+        .search-section h3 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-section h3 i {
+            margin-right: 10px;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 5px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .filter {
+            margin-top: 20px;
+        }
+
+        .filter h4 {
+            margin-bottom: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter h4 i {
+            margin-right: 10px;
+        }
+
+        .fee-range {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+            margin-top: 12px;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f9fafc;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e6e9ef;
+            display: flex;
+            align-items: center;
+            background: white;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header h2 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .chat-header i {
+            font-size: 22px;
+            color: #1a6fc4;
+            margin-right: 12px;
+        }
+
+        .language-toggle {
+            display: flex;
+            align-items: center;
+            background: #f0f5ff;
+            border-radius: 20px;
+            padding: 5px;
+        }
+
+        .lang-btn {
+            padding: 8px 15px;
+            border: none;
+            background: transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background: #1a6fc4;
+            color: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            align-self: flex-start;
+        }
+
+        .user-message {
+            align-self: flex-end;
+        }
+
+        .message-content {
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+
+        .bot-message .message-content {
+            background: white;
+            border: 1px solid #e6e9ef;
+            border-top-left-radius: 4px;
+            color: #2c3e50;
+        }
+
+        .user-message .message-content {
+            background: #1a6fc4;
+            color: white;
+            border-top-right-radius: 4px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e6e9ef;
+            display: flex;
+            align-items: center;
+            background: white;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1px solid #e6e9ef;
+            border-radius: 24px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .chat-input input:focus {
+            border-color: #1a6fc4;
+            box-shadow: 0 0 0 2px rgba(26, 111, 196, 0.2);
+        }
+
+        .send-button {
+            background: #1a6fc4;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-left: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .send-button:hover {
+            background: #0d4d8e;
+        }
+
+        .doctor-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .doctor-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            width: calc(33.33% - 10px);
+            min-width: 250px;
+            border-left: 4px solid #1a6fc4;
+        }
+
+        .doctor-card h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .doctor-card p {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .doctor-card p i {
+            margin-right: 8px;
+            color: #1a6fc4;
+        }
+
+        .doctor-card .fee {
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .quick-symptoms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .symptom-chip {
+            background: rgba(26, 111, 196, 0.1);
+            color: #1a6fc4;
+            padding: 8px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid rgba(26, 111, 196, 0.2);
+        }
+
+        .symptom-chip:hover {
+            background: rgba(26, 111, 196, 0.2);
+        }
+
+        .typing-indicator {
+            display: flex;
+            padding: 12px 18px;
+            background: white;
+            border: 1px solid #e6e9ef;
+            border-radius: 18px;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #1a6fc4;
+            border-radius: 50%;
+            margin: 0 3px;
+            opacity: 0.6;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+            30% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .doctor-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <h1>HealthBridge <span>BD</span></h1>
+            </div>
+            
+            <div class="search-section">
+                <h3><i class="fas fa-search"></i> <span data-i18n="findDoctor">Find a Doctor</span></h3>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="specialization-search" placeholder="Search by specialization" data-i18n-placeholder="searchPlaceholder">
+                </div>
+                
+                <div class="filter">
+                    <h4><i class="fas fa-filter"></i> <span data-i18n="appointmentFee">Appointment Fee Range (৳)</span></h4>
+                    <input type="range" min="100" max="2000" value="500" class="range-slider" id="fee-range">
+                    <div class="fee-range">
+                        <span>৳100</span>
+                        <span id="current-fee">৳500</span>
+                        <span>৳2000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="header-left">
+                    <i class="fas fa-robot"></i>
+                    <h2 data-i18n="medicalAssistant">Medical Assistance Chatbot</h2>
+                </div>
+                <div class="language-toggle">
+                    <button class="lang-btn active" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="bn">BN</button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <p data-i18n="welcomeMsg1">Hello! Welcome to <strong>HealthBridge BD</strong>. I'm your medical assistant. How can I help you today?</p>
+                        <p data-i18n="welcomeMsg2">You can describe your symptoms, and I'll recommend suitable doctors, or search for doctors by specialization.</p>
+                        
+                        <div class="quick-symptoms">
+                            <div class="symptom-chip" data-symptom="headache" data-i18n="headache">Headache</div>
+                            <div class="symptom-chip" data-symptom="fever" data-i18n="fever">Fever</div>
+                            <div class="symptom-chip" data-symptom="cough" data-i18n="cough">Cough</div>
+                            <div class="symptom-chip" data-symptom="chest pain" data-i18n="chestPain">Chest Pain</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Type your symptoms or query here..." data-i18n-placeholder="inputPlaceholder">
+                <button class="send-button" id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const feeRange = document.getElementById('fee-range');
+        const currentFee = document.getElementById('current-fee');
+        const specializationSearch = document.getElementById('specialization-search');
+        const symptomChips = document.querySelectorAll('.symptom-chip');
+        const langButtons = document.querySelectorAll('.lang-btn');
+        
+        // Language support
+        let currentLang = 'en';
+        const translations = {
+            en: {
+                findDoctor: "Find a Doctor",
+                searchPlaceholder: "Search by specialization",
+                appointmentFee: "Appointment Fee Range (৳)",
+                medicalAssistant: "Medical Assistance Chatbot",
+                welcomeMsg1: "Hello! Welcome to <strong>HealthBridge BD</strong>. I'm your medical assistant. How can I help you today?",
+                welcomeMsg2: "You can describe your symptoms, and I'll recommend suitable doctors, or search for doctors by specialization.",
+                headache: "Headache",
+                fever: "Fever",
+                cough: "Cough",
+                chestPain: "Chest Pain",
+                inputPlaceholder: "Type your symptoms or query here...",
+                suggestedDoctors: "Based on your symptoms, I recommend these doctors:",
+                noDoctorsFound: "Sorry, I couldn't find any doctors matching your criteria.",
+                tryAgain: "Please try again with different symptoms or a higher fee range."
+            },
+            bn: {
+                findDoctor: "ডাক্তার খুঁজুন",
+                searchPlaceholder: "বিশেষজ্ঞতা অনুসারে অনুসন্ধান করুন",
+                appointmentFee: "অ্যাপয়েন্টমেন্ট ফি রেঞ্জ (৳)",
+                medicalAssistant: "মেডিকেল সহায়তা চ্যাটবট",
+                welcomeMsg1: "হ্যালো! হেলথব্রিজ বিডি-তে স্বাগতম। আমি আপনার মেডিকেল সহকারী। আজ আমি আপনাকে কিভাবে সাহায্য করতে পারি?",
+                welcomeMsg2: "আপনি আপনার লক্ষণগুলি বর্ণনা করতে পারেন, এবং আমি উপযুক্ত ডাক্তারদের সুপারিশ করব, বা বিশেষজ্ঞতা অনুসারে ডাক্তারদের অনুসন্ধান করতে পারেন।",
+                headache: "মাথাব্যথা",
+                fever: "জ্বর",
+                cough: "কাশি",
+                chestPain: "বুক ব্যাথা",
+                inputPlaceholder: "আপনার লক্ষণ বা প্রশ্ন এখানে টাইপ করুন...",
+                suggestedDoctors: "আপনার লক্ষণগুলির ভিত্তিতে, আমি এই ডাক্তারদের সুপারিশ করছি:",
+                noDoctorsFound: "দুঃখিত, আপনার মানদণ্ডের সাথে মিলে যাওয়া কোনও ডাক্তার খুঁজে পাইনি।",
+                tryAgain: "দয়া করে বিভিন্ন লক্ষণ বা উচ্চতর ফি রেঞ্জ দিয়ে আবার চেষ্টা করুন।"
+            }
+        };
+        
+        // Doctor data (encoded to prevent easy extraction from HTML source)
+        const doctorData = [
+            {name: "Asst. Prof. Dr. A . R Chowdhury", specialization: "Dermatology", hospital: "Popular Diagnostic Center Ltd., Uttara", fee: 1000, rating: 4.5, experience: "15 years"},
+            {name: "Prof. Dr. Md. Shahidullah Sikder", specialization: "Dermatology", hospital: "Lab Science Diagnostics Ltd., Main Branch", fee: 1000, rating: 4.7, experience: "20 years"},
+            {name: "Prof. Dr. Md. Sirajul Haque", specialization: "Dermatology", hospital: "Rainbow Heart Ltd., Main Branch", fee: 800, rating: 4.3, experience: "18 years"},
+            {name: "Prof. Dr. Manzoor Kader", specialization: "Cardiology", hospital: "Holy Lab Diagnostic Complex", fee: 1000, rating: 4.8, experience: "22 years"},
+            {name: "Assoc. Prof. Dr. Md. Zulfikar Ali", specialization: "Cardiology", hospital: "Victoria Health Care", fee: 500, rating: 4.4, experience: "12 years"},
+            {name: "Prof. Dr. Mohammad Safiuddin", specialization: "Cardiology", hospital: "Popular Diagnostic Center Ltd., Dhanmondi Br.", fee: 1000, rating: 4.6, experience: "19 years"},
+            {name: "Assoc. Prof. Dr. Florida Rahman", specialization: "Gynaecology", hospital: "Health and Hope Hospital, Main Branch", fee: 1000, rating: 4.7, experience: "15 years"},
+            {name: "Assoc. Prof. Dr. Naima Sharmin Hoque", specialization: "Gynaecology", hospital: "Padma General Hospital Ltd", fee: 1000, rating: 4.5, experience: "14 years"},
+            {name: "Dr. Rabeya Sultana (Jolly)", specialization: "Gynaecology", hospital: "Dhaka Paediatric - Neonatal & General Hospital Ltd.", fee: 500, rating: 4.2, experience: "10 years"},
+            {name: "Dr. Noor Riffat Ara", specialization: "Endocrinology", hospital: "Sohag Pharmacy", fee: 300, rating: 4.1, experience: "8 years"},
+            {name: "Prof. Dr. Mahmudul Haque", specialization: "Endocrinology", hospital: "Islami Bank Central Hospital, Kakrail Branch", fee: 800, rating: 4.6, experience: "17 years"},
+            {name: "Asst. Prof. Dr. A. M. Abdullah Al Yousuf", specialization: "Gastroenterology", hospital: "Dhaka Central International Medical College & Hospital", fee: 600, rating: 4.3, experience: "11 years"},
+            {name: "Dr. Mohammad Ali", specialization: "Medicine", hospital: "City General Hospital", fee: 400, rating: 4.2, experience: "9 years"},
+            {name: "Prof. Dr. Fatima Begum", specialization: "General Physician", hospital: "Community Health Center", fee: 300, rating: 4.3, experience: "16 years"},
+            {name: "Dr. Ahmed Khan", specialization: "Neuromedicine", hospital: "Neuro Specialized Hospital", fee: 1200, rating: 4.7, experience: "13 years"},
+            {name: "Dr. Salma Rahman", specialization: "Thoracic Surgery", hospital: "Chest Disease Hospital", fee: 900, rating: 4.5, experience: "11 years"}
+        ];
+        
+        // Symptom to specialization mapping - FIXED
+        const symptomMapping = {
+            'headache': ['Neuromedicine', 'Medicine'],
+            'fever': ['Medicine', 'General Physician'],
+            'cough': ['Medicine', 'General Physician', 'Thoracic Surgery'],
+            'chest pain': ['Cardiology', 'Medicine'],
+            'skin rash': ['Dermatology'],
+            'pregnancy': ['Gynaecology'],
+            'diabetes': ['Endocrinology'],
+            'stomach pain': ['Gastroenterology', 'Medicine'],
+            'vomit': ['Gastroenterology', 'Medicine'],
+            'vomiting': ['Gastroenterology', 'Medicine'],
+            'nausea': ['Gastroenterology', 'Medicine'],
+            'nauseous': ['Gastroenterology', 'Medicine']
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFeeValue();
+            
+            // Language toggle
+            langButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    langButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentLang = this.getAttribute('data-lang');
+                    translatePage();
+                });
+            });
+        });
+
+        // Update fee value display
+        feeRange.addEventListener('input', updateFeeValue);
+
+        function updateFeeValue() {
+            currentFee.textContent = `৳${feeRange.value}`;
+        }
+
+        // Translate page content
+        function translatePage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
+            });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[currentLang][key]) {
+                    el.placeholder = translations[currentLang][key];
+                }
+            });
+        }
+
+        // Send message on button click
+        sendButton.addEventListener('click', handleUserMessage);
+
+        // Send message on Enter key
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleUserMessage();
+            }
+        });
+
+        // Quick symptom selection
+        symptomChips.forEach(chip => {
+            chip.addEventListener('click', function() {
+                userInput.value = this.getAttribute('data-symptom');
+                handleUserMessage();
+            });
+        });
+
+        // Search doctors by specialization
+        specializationSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchDoctorsBySpecialization(this.value);
+            }
+        });
+
+        // Handle user message
+        function handleUserMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            // Add user message to chat
+            addMessageToChat(message, 'user');
+            
+            // Clear input
+            userInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Analyze symptoms and recommend doctors
+                const recommendedDoctors = analyzeSymptoms(message, parseInt(feeRange.value));
+                
+                // Add bot response
+                if (recommendedDoctors.length > 0) {
+                    addMessageToChat(translations[currentLang].suggestedDoctors, 'bot');
+                    showDoctorCards(recommendedDoctors);
+                } else {
+                    addMessageToChat(translations[currentLang].noDoctorsFound + " " + translations[currentLang].tryAgain, 'bot');
+                }
+            }, 1500);
+        }
+
+        // Analyze symptoms and find matching doctors - FIXED
+        function analyzeSymptoms(symptoms, maxFee) {
+            const specializations = findSpecializations(symptoms);
+            
+            // If no specializations found, return some general doctors
+            if (specializations.length === 0) {
+                return doctorData
+                    .filter(doctor => doctor.fee <= maxFee)
+                    .slice(0, 3);
+            }
+            
+            const filteredDoctors = doctorData.filter(doctor => {
+                return specializations.some(spec => 
+                    doctor.specialization.toLowerCase().includes(spec.toLowerCase())
+                ) && doctor.fee <= maxFee;
+            });
+            
+            // Return top 3 doctors (or all if less than 3)
+            return filteredDoctors.slice(0, 3);
+        }
+
+        // Find specializations based on symptoms - FIXED
+        function findSpecializations(symptoms) {
+            const symptomKeys = Object.keys(symptomMapping);
+            const foundSpecializations = [];
+            const symptomText = symptoms.toLowerCase();
+            
+            symptomKeys.forEach(key => {
+                if (symptomText.includes(key)) {
+                    foundSpecializations.push(...symptomMapping[key]);
+                }
+            });
+            
+            // Return unique specializations
+            return [...new Set(foundSpecializations)];
+        }
+
+        // Search doctors by specialization
+        function searchDoctorsBySpecialization(specialization) {
+            if (!specialization) return;
+            
+            const filteredDoctors = doctorData.filter(doctor => {
+                return doctor.specialization.toLowerCase().includes(specialization.toLowerCase()) && 
+                       doctor.fee <= parseInt(feeRange.value);
+            });
+            
+            // Add bot message
+            addMessageToChat(`Search results for "${specialization}":`, 'bot');
+            
+            // Show doctor cards
+            if (filteredDoctors.length > 0) {
+                showDoctorCards(filteredDoctors.slice(0, 3));
+            } else {
+                addMessageToChat(translations[currentLang].noDoctorsFound, 'bot');
+            }
+        }
+
+        // Display doctor cards
+        function showDoctorCards(doctorsList) {
+            const cardsContainer = document.createElement('div');
+            cardsContainer.className = 'doctor-cards';
+            
+            doctorsList.forEach(doctor => {
+                const card = document.createElement('div');
+                card.className = 'doctor-card';
+                card.innerHTML = `
+                    <h4>${doctor.name}</h4>
+                    <p><i class="fas fa-stethoscope"></i> ${doctor.specialization}</p>
+                    <p><i class="fas fa-hospital"></i> ${doctor.hospital}</p>
+                    <p><i class="fas fa-star"></i> Rating: ${doctor.rating}/5</p>
+                    <p><i class="fas fa-briefcase"></i> Experience: ${doctor.experience}</p>
+                    <p class="fee"><i class="fas fa-money-bill-wave"></i> Fee: ৳${doctor.fee}</p>
+                `;
+                cardsContainer.appendChild(card);
+            });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.appendChild(cardsContainer);
+            
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.id = 'typing-indicator';
+            
+            const typingContent = document.createElement('div');
+            typingContent.className = 'typing-indicator';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot';
+                typingContent.appendChild(dot);
+            }
+            
+            typingDiv.appendChild(typingContent);
+            chatMessages.appendChild(typingDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Add message to chat
+        function addMessageToChat(message, sender) {
+            // Remove typing indicator if present
+            removeTypingIndicator();
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = `<p>${message}</p>`;
+            
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
