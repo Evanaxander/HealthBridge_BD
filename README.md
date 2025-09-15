@@ -1,5 +1,5 @@
 # HealthBridge_BD
-A prototype of A chatbot that suggests doctors based on fee range and symptoms
+A pwork in progress of A chatbot that suggests doctors based on fee range and symptoms
 
 <img width="1892" height="802" alt="image" src="https://github.com/user-attachments/assets/4132101f-8572-468f-acb1-4887310b79f5" />
 
